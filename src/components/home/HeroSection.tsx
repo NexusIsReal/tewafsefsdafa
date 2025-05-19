@@ -114,22 +114,16 @@ export default function HeroSection() {
     };
   }, [prefersReducedMotion]);
   
-  // Parallax effect on scroll
+  // Simplified scroll effect (removed problematic parallax)
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ['start start', 'end start'],
-    smooth: 0.1
+    offset: ['start start', 'end start']
   });
   
-  const y = useTransform(scrollYProgress, [0, 1], [0, 200], {
-    clamp: false
-  });
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0], {
-    clamp: true
-  });
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95], {
-    clamp: true
-  });
+  // Using fixed values instead of scroll-based transforms
+  const y = useMotionValue(0);
+  const opacity = useMotionValue(1);
+  const scale = useMotionValue(1);
 
   // Scroll to contact section
   const scrollToContact = () => {
@@ -559,7 +553,6 @@ export default function HeroSection() {
           {/* Text content with enhanced animations - centered */}
           <motion.div 
             className="w-full md:w-1/2 max-w-2xl z-10"
-            style={{ y, opacity, scale }}
             initial="hidden"
             animate={isLoaded ? "visible" : "hidden"}
             variants={containerVariants}
@@ -770,7 +763,6 @@ export default function HeroSection() {
           {/* RIGHT SIDE content - 3D Video Portfolio Showcase */}
           <motion.div 
             className="hidden md:block w-full md:w-1/2 z-10 will-change-transform"
-            style={{ y, opacity, scale }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.8 }}
@@ -781,8 +773,7 @@ export default function HeroSection() {
                 className="relative w-full max-w-md mx-auto h-80 rounded-lg border border-white/10 shadow-2xl shadow-primary/10 overflow-hidden transform-gpu will-change-transform"
                 style={{
                   rotateY: mousePosition.x * 5,
-                  rotateX: -mousePosition.y * 5,
-                  y: useTransform(scrollYProgress, [0, 0.2], [0, -20], { clamp: true })
+                  rotateX: -mousePosition.y * 5
                 }}
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}

@@ -1,260 +1,34 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { FiPlay, FiExternalLink, FiFilm, FiAward, FiClock, FiArrowLeft, FiArrowRight } from 'react-icons/fi';
+import { FiPlay, FiExternalLink, FiFilm, FiAward, FiClock, FiArrowLeft, FiArrowRight, FiX } from 'react-icons/fi';
 
-// Projects based on actual video files
-const projects = [
-  {
-    id: 1,
-    title: 'MAIN JOHAN',
-    description: 'A showcase of my primary video work and editing style.',
-    duration: '5:25',
-    year: '2023',
-    tags: ['Showcase', 'Portfolio'],
-    thumbnailUrl: '/images/MAIN JOHAN.jpg',
-    videoUrl: '/projects/MAIN JOHAN.mp4',
-    client: 'Personal Portfolio',
-    services: ['Video Editing', 'Color Grading', 'Sound Design']
-  },
-  {
-    id: 2,
-    title: 'MrBeast Interview',
-    description: 'A short interview edit featuring MrBeast discussing his content and vision.',
-    duration: '2:30',
-    year: '2023',
-    tags: ['Interview', 'Short'],
-    thumbnailUrl: '/images/mr beast Interview (Short).jpg',
-    videoUrl: '/projects/mr beast Interview (Short).mp4',
-    client: 'Content Creator',
-    services: ['Interview Editing', 'Short Form Content']
-  },
-  {
-    id: 3,
-    title: 'David',
-    description: 'A focused project highlighting storytelling through video.',
-    duration: '3:15',
-    year: '2023',
-    tags: ['Story', 'Narrative'],
-    thumbnailUrl: '/images/david.jpg',
-    videoUrl: '/projects/david.mp4',
-    client: 'David',
-    services: ['Narrative Editing', 'Visual Storytelling']
-  },
-  {
-    id: 4,
-    title: 'Minecraft Cinematic',
-    description: 'Creative gameplay footage edit showcasing Minecraft content.',
-    duration: '1:45',
-    year: '2023',
-    tags: ['Gaming', 'Content'],
-    thumbnailUrl: '/images/minecraft Cinematic.jpg',
-    videoUrl: '/projects/minecraft Cinematic.mp4',
-    client: 'Gaming Creator',
-    services: ['Gaming Content', 'Pacing', 'Visual Effects']
-  },
-  {
-    id: 5,
-    title: 'Minecraft Cinematic 2',
-    description: 'Follow-up Minecraft content with enhanced editing techniques.',
-    duration: '1:40',
-    year: '2023',
-    tags: ['Gaming', 'Content'],
-    thumbnailUrl: '/images/minecraft Cinematic2.jpg',
-    videoUrl: '/projects/minecraft Cinematic2.mp4',
-    client: 'Gaming Creator',
-    services: ['Gaming Content', 'Pacing', 'Visual Effects']
-  },
-  {
-    id: 6,
-    title: 'Minecraft 5K',
-    description: 'Special Minecraft project celebrating a 5K milestone.',
-    duration: '8:20',
-    year: '2023',
-    tags: ['Gaming', 'Milestone'],
-    thumbnailUrl: '/images/minecraft 5k.jpg',
-    videoUrl: '/projects/minecraft 5k.mp4',
-    client: 'Gaming Channel',
-    services: ['Long-form Content', 'Special Effects', 'Editing']
-  },
-  {
-    id: 7,
-    title: 'Minecraft Intro',
-    description: 'Captivating introduction sequence for a Minecraft channel.',
-    duration: '3:45',
-    year: '2023',
-    tags: ['Intro', 'Gaming'],
-    thumbnailUrl: '/images/minecraft intro.jpg',
-    videoUrl: '/projects/minecraft intro.mp4',
-    client: 'Gaming Creator',
-    services: ['Intro Design', 'Motion Graphics', 'Branding']
-  },
-  {
-    id: 8,
-    title: 'Iman Gadzhi',
-    description: 'Professional interview edit featuring Iman Gadzhi.',
-    duration: '1:20',
-    year: '2023',
-    tags: ['Interview', 'Business'],
-    thumbnailUrl: '/images/iman_gadzhi.jpg',
-    videoUrl: '/projects/iman_gadzhi.mp4',
-    client: 'Business Channel',
-    services: ['Interview Editing', 'Professional Content']
-  },
-  {
-    id: 9,
-    title: 'Iman Gadzhi Extended',
-    description: 'Extended interview and content featuring Iman Gadzhi.',
-    duration: '4:10',
-    year: '2023',
-    tags: ['Interview', 'Business'],
-    thumbnailUrl: '/images/ImanGadzhi.jpg',
-    videoUrl: '/projects/ImanGadzhi.mp4',
-    client: 'Business Channel',
-    services: ['Long-form Interview', 'Content Production']
-  },
-  {
-    id: 10,
-    title: 'Ebuka Getting Back',
-    description: 'Lifestyle content featuring Ebuka\'s journey and experiences.',
-    duration: '18:45',
-    year: '2023',
-    tags: ['Lifestyle', 'Documentary'],
-    thumbnailUrl: '/images/Ebuka Getting back.jpg',
-    videoUrl: '/projects/Ebuka Getting back.mp4',
-    client: 'Ebuka',
-    services: ['Documentary Editing', 'Long-form Content', 'Storytelling']
-  },
-  {
-    id: 11,
-    title: 'Ebuka 74 (Short)',
-    description: 'A concise short-form video featuring Ebuka.',
-    duration: '4:30',
-    year: '2023',
-    tags: ['Short', 'Lifestyle'],
-    thumbnailUrl: '/images/ebuka 74.jpg',
-    videoUrl: '/projects/ebuka 74  (Short).mp4',
-    client: 'Ebuka',
-    services: ['Short Content', 'Quick Edits', 'Social Media']
-  },
-  {
-    id: 12,
-    title: 'Self Confidence',
-    description: 'Motivational content focusing on building self-confidence.',
-    duration: '9:15',
-    year: '2023',
-    tags: ['Motivational', 'Self-help'],
-    thumbnailUrl: '/images/Self Confidence.jpg',
-    videoUrl: '/projects/Self Confidence.mp4',
-    client: 'Motivational Channel',
-    services: ['Motivational Content', 'Inspirational Editing', 'Audio Production']
-  }
-];
-
-// Filter options
-const categories = [
-  { id: 'all', name: 'All Projects' },
-  { id: 'shorts', name: 'Shorts' },
-  { id: 'gaming', name: 'Minecraft' },
-  { id: 'interviews', name: 'Interviews' }
-];
+// Import project data from centralized file
+import { Project, projects, categories, getFilteredProjects } from '@/types/projects';
 
 export default function ProjectsPage() {
   const [activeVideo, setActiveVideo] = useState<number | null>(null);
   const [activeFilter, setActiveFilter] = useState('all');
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const videoRef = useRef<HTMLVideoElement>(null);
   
-  // Play video
+  // Play video modal with YouTube embed
   const playVideo = (id: number) => {
     setActiveVideo(id);
-    // Reset video state
-    setIsPlaying(false);
-    setCurrentTime(0);
   };
   
   // Close video
   const closeVideo = () => {
-    if (videoRef.current) {
-      videoRef.current.pause();
-    }
     setActiveVideo(null);
-    setIsPlaying(false);
   };
-  
-  // Toggle play/pause
-  const togglePlay = () => {
-    if (!videoRef.current) return;
-    
-    if (isPlaying) {
-      videoRef.current.pause();
-    } else {
-      videoRef.current.volume = 0.5; // Set volume to 50%
-      videoRef.current.play();
-    }
-  };
-  
-  // Format time in MM:SS format
-  const formatTime = (timeInSeconds: number) => {
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = Math.floor(timeInSeconds % 60);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  };
-  
-  // Update video time and state
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || activeVideo === null) return;
-    
-    const updateTime = () => {
-      setCurrentTime(video.currentTime);
-    };
-    
-    const updateDuration = () => {
-      setDuration(video.duration);
-    };
-    
-    const handlePlayStateChange = () => {
-      setIsPlaying(!video.paused);
-    };
-    
-    video.addEventListener('timeupdate', updateTime);
-    video.addEventListener('loadedmetadata', updateDuration);
-    video.addEventListener('play', handlePlayStateChange);
-    video.addEventListener('pause', handlePlayStateChange);
-    
-    return () => {
-      video.removeEventListener('timeupdate', updateTime);
-      video.removeEventListener('loadedmetadata', updateDuration);
-      video.removeEventListener('play', handlePlayStateChange);
-      video.removeEventListener('pause', handlePlayStateChange);
-    };
-  }, [activeVideo]);
   
   // Get current project
   const getCurrentProject = () => {
     return projects.find(p => p.id === activeVideo) || null;
   };
   
-  // Filter projects
-  const filteredProjects = activeFilter === 'all' 
-    ? projects 
-    : projects.filter(project => {
-        if (activeFilter === 'shorts') {
-          return project.tags.includes('Short');
-        }
-        if (activeFilter === 'gaming') {
-          return project.tags.includes('Gaming');
-        }
-        if (activeFilter === 'interviews') {
-          return project.tags.includes('Interview');
-        }
-        return false;
-      });
+  // Filter projects using centralized function
+  const filteredProjects = getFilteredProjects(activeFilter);
 
   return (
     <main className="min-h-screen pt-24 pb-20 relative overflow-hidden bg-black">
@@ -417,76 +191,20 @@ export default function ProjectsPage() {
             onClick={closeVideo}
             className="absolute top-6 right-6 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+            <FiX className="w-6 h-6" />
           </button>
           
           <div className="w-full max-w-6xl mx-auto overflow-hidden rounded-xl shadow-2xl">
-            {/* Video player */}
+            {/* YouTube embed video player */}
             <div className="relative aspect-video bg-black">
-              <video 
-                ref={videoRef}
-                src={getCurrentProject()?.videoUrl} 
-                className="w-full h-full object-contain"
-                playsInline
-                controls={false}
-                onClick={togglePlay}
-              ></video>
-              
-              {/* Play/pause overlay */}
-              {!isPlaying && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                  <button
-                    onClick={togglePlay}
-                    className="w-20 h-20 flex items-center justify-center rounded-full bg-primary text-black transform hover:scale-105 transition-transform"
-                  >
-                    <FiPlay className="w-8 h-8 ml-1" />
-                  </button>
-                </div>
-              )}
-              
-              {/* Video controls */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                {/* Progress bar */}
-                <div className="relative w-full h-1 bg-white/20 rounded-full mb-4 cursor-pointer overflow-hidden">
-                  <div
-                    className="absolute top-0 left-0 h-full bg-primary rounded-full"
-                    style={{ width: `${(currentTime / duration) * 100}%` }}
-                  ></div>
-                </div>
-                
-                {/* Controls row */}
-                <div className="flex items-center justify-between">
-                  {/* Left side */}
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={togglePlay}
-                      className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-                    >
-                      {isPlaying ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="6" y="4" width="4" height="16"></rect>
-                          <rect x="14" y="4" width="4" height="16"></rect>
-                        </svg>
-                      ) : (
-                        <FiPlay className="w-5 h-5 ml-0.5" />
-                      )}
-                    </button>
-                    
-                    {/* Time display */}
-                    <div className="text-sm text-white/80">
-                      {formatTime(currentTime)} / {formatTime(duration)}
-                    </div>
-                  </div>
-                  
-                  {/* Right side */}
-                  <div>
-                    <h3 className="text-lg font-medium text-white">{getCurrentProject()?.title}</h3>
-                  </div>
-                </div>
-              </div>
+              <iframe 
+                className="w-full h-full"
+                src={`https://www.youtube.com/embed/${getYoutubeId(getCurrentProject()?.youtubeUrl || '')}?autoplay=1&rel=0&modestbranding=1`}
+                title={getCurrentProject()?.title || 'YouTube video'}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
             </div>
             
             {/* Project details */}
@@ -537,4 +255,18 @@ export default function ProjectsPage() {
       )}
     </main>
   );
+}
+
+// Function to extract YouTube video ID from URL
+function getYoutubeId(url: string): string {
+  // Handle shorts format
+  if (url.includes('youtube.com/shorts/')) {
+    const shortsId = url.split('youtube.com/shorts/')[1];
+    return shortsId.split(/[/?&]/)[0]; // Get everything before any parameters
+  }
+  
+  // Handle regular YouTube URLs
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : '';
 }

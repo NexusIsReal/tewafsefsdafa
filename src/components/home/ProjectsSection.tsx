@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -9,69 +9,11 @@ import { IoVideocamOutline, IoColorPaletteOutline } from 'react-icons/io5';
 import { RiMovie2Line, RiCameraLensFill, RiVidiconLine } from 'react-icons/ri';
 import { MdOutlineVideoLibrary } from 'react-icons/md';
 
-// Featured projects from actual portfolio
-const projects = [
-  {
-    id: 1,
-    title: 'Johan Set',
-    description: 'A showcase of my primary video work and editing style.',
-    tags: ['Showcase', 'Portfolio'],
-    client: 'Personal Portfolio',
-    year: '2023',
-    thumbnailUrl: '/images/MAIN JOHAN.jpg',
-    videoUrl: '/projects/MAIN JOHAN.mp4',
-  },
-  {
-    id: 2,
-    title: 'MrBeast Interview',
-    description: 'A short interview edit featuring MrBeast discussing his content and vision.',
-    tags: ['Interview', 'Short'],
-    client: 'Content Creator',
-    year: '2023',
-    thumbnailUrl: '/images/mr beast Interview (Short).jpg',
-    videoUrl: '/projects/mr beast Interview (Short).mp4',
-  },
-  {
-    id: 3,
-    title: 'David',
-    description: 'A focused project highlighting storytelling through video.',
-    tags: ['Story', 'Narrative'],
-    client: 'David',
-    year: '2023',
-    thumbnailUrl: '/images/david.jpg',
-    videoUrl: '/projects/david.mp4',
-  },
-  {
-    id: 4,
-    title: 'Minecraft Cinematic',
-    description: 'Creative gameplay footage edit showcasing Minecraft content.',
-    tags: ['Gaming', 'Content'],
-    client: 'Gaming Creator',
-    year: '2023',
-    thumbnailUrl: '/images/minecraft Cinematic.jpg',
-    videoUrl: '/projects/minecraft Cinematic.mp4',
-  },
-  {
-    id: 5,
-    title: 'Iman Gadzhi',
-    description: 'Professional interview edit featuring Iman Gadzhi.',
-    tags: ['Interview', 'Business'],
-    client: 'Business Channel',
-    year: '2023',
-    thumbnailUrl: '/images/iman_gadzhi.jpg',
-    videoUrl: '/projects/iman_gadzhi.mp4',
-  },
-  {
-    id: 6,
-    title: 'Self Confidence',
-    description: 'Motivational content focusing on building self-confidence.',
-    tags: ['Motivational', 'Self-help'],
-    client: 'Motivational Channel',
-    year: '2023',
-    thumbnailUrl: '/images/Self Confidence.jpg',
-    videoUrl: '/projects/Self Confidence.mp4',
-  }
-];
+// Import featured projects from centralized file
+import { Project, featuredProjects } from '@/types/projects';
+
+// Use featured projects for the home page
+const projects = featuredProjects;
 
 export default function ProjectsSection() {
   const [hoveredProject, setHoveredProject] = useState<number | null>(null);
@@ -81,7 +23,6 @@ export default function ProjectsSection() {
   
   const sectionRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 });
   
   // Track mouse position for 3D effects
@@ -110,9 +51,9 @@ export default function ProjectsSection() {
   const y = useTransform(scrollYProgress, [0, 1], [50, -50]);
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
   
-  // Play video function
-  const playVideo = (videoUrl: string) => {
-    setSelectedVideo(videoUrl);
+  // Open YouTube video modal
+  const playVideo = (youtubeId: string) => {
+    setSelectedVideo(youtubeId);
   };
   
   // Close video player
@@ -140,6 +81,20 @@ export default function ProjectsSection() {
       transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] }
     }
   };
+  
+  // Function to extract YouTube video ID from URL
+  function getYoutubeId(url: string): string {
+    // Handle shorts format
+    if (url.includes('youtube.com/shorts/')) {
+      const shortsId = url.split('youtube.com/shorts/')[1];
+      return shortsId.split(/[/?&]/)[0]; // Get everything before any parameters
+    }
+    
+    // Handle regular YouTube URLs
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : '';
+  }
   
   return (
     <section ref={sectionRef} className="py-24 relative overflow-hidden bg-black perspective-1000" id="projects">
@@ -325,13 +280,14 @@ export default function ProjectsSection() {
                 transition={{ type: "spring", damping: 25 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <video 
-                  ref={videoRef}
-                  className="w-full h-full object-cover" 
-                  src={selectedVideo}
-                  controls
-                  autoPlay
-                />
+                <iframe 
+                  className="w-full aspect-video" 
+                  src={`https://www.youtube.com/embed/${getYoutubeId(selectedVideo || '')}?autoplay=1&rel=0&modestbranding=1`}
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
                 <button
                   className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center"
                   onClick={(e) => {
@@ -400,7 +356,7 @@ export default function ProjectsSection() {
                   {/* Play button */}
                   <div className="absolute inset-0 flex items-center justify-center z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <motion.button
-                      onClick={() => playVideo(project.videoUrl)}
+                      onClick={() => playVideo(project.youtubeUrl)}
                       className="w-16 h-16 rounded-full bg-primary/90 backdrop-blur-sm text-white flex items-center justify-center shadow-lg shadow-primary/30"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}

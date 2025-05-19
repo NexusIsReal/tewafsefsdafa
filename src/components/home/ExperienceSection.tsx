@@ -6,10 +6,10 @@ import { FiBriefcase, FiCalendar, FiAward, FiTrendingUp } from 'react-icons/fi';
 // Sample experience data - replace with your actual video editing experience
 const experiences = [
   {
-    company: 'Cinematic Visuals Studio',
-    role: 'Lead Video Editor',
-    period: 'Jan, 2024 - Present',
-    description: 'Lead a team of video editors working on commercial projects for major brands including tech giants and lifestyle companies. Responsible for maintaining high quality standards, implementing advanced color grading workflows, and ensuring on-time delivery of projects. Increased client satisfaction ratings by 35% through improved communication and revision processes.'
+    company: 'Cinematic Visuals International',
+    role: 'Senior Video Editor & Colorist',
+    period: 'Mar, 2024 - Present',
+    description: 'Leading creative video editing projects for international clients with focus on high-end commercial and documentary content. Implementing advanced color grading techniques and managing post-production workflows. Delivered over 25 commercial projects with a 98% client satisfaction rate and reduced delivery timelines by 30% through optimized editing processes.'
   },
   {
     company: 'Wedding Stories Pro',
@@ -156,7 +156,7 @@ export default function ExperienceSection() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-xl text-gray-400 max-w-2xl mx-auto"
             >
-              My career journey in video editing and visual storytelling
+              My professional journey in cinematic storytelling and video production
             </motion.p>
           </div>
         

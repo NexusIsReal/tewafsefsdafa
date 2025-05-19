@@ -6,8 +6,10 @@ import { FiMail, FiPhone, FiMapPin, FiSend, FiClock, FiArrowRight, FiMessageCirc
 import { Spinner } from '@/components/ui/Spinner';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ContactSection() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -21,10 +23,7 @@ export default function ContactSection() {
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Add new state for video popup
-  const [showVideo, setShowVideo] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  
+  // State for form submission
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -142,10 +141,10 @@ export default function ContactSection() {
       // 5. Copy the webhook URL and paste it below
       // 6. Make sure to keep your webhook URL private in production environment
       //    by using environment variables (e.g. process.env.DISCORD_WEBHOOK_URL)
-      const webhookUrl = 'https://discord.com/api/webhooks/1373199412603387964/sZbg-HVkLBdRetlxDRv45gFRaop9xO52FqykaFg6phpJpfvhjk2EwkYGaEryKl2KFqT5'; // Replace with your actual Discord webhook URL
+      const webhookUrl = 'https://discord.com/api/webhooks/1373199412603387964/sZbg-HVkLBdRetlxDRv45gFRaop9xO52FqykaFg6phpJpfvhjk2EwkYGaEryKl2KFqT5';
       
-      // Create payload for Discord
-      const payload = {
+      // Create payload for Discord message
+      const messagePayload = {
         content: '<@&1201515499071213568> <@&1258746906021199923> <@&1166770801094172713> New contact form submission received!',
         embeds: [
           {
@@ -192,19 +191,49 @@ export default function ContactSection() {
       };
       
       try {
-        // Send to Discord webhook
-        const response = await fetch(webhookUrl, {
+        // First send the message to Discord webhook
+        const messageResponse = await fetch(webhookUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(messagePayload),
         });
         
-        if (!response.ok) {
-          console.error('Discord webhook error:', response.status, await response.text());
+        if (!messageResponse.ok) {
+          console.error('Discord webhook message error:', messageResponse.status, await messageResponse.text());
         } else {
           console.log('Message sent to Discord successfully');
+          
+          // If there are attachments, send them one by one
+          if (attachments.length > 0) {
+            for (const file of attachments) {
+              const formDataObj = new FormData();
+              
+              // Add a simple message with the file
+              const fileMessage = {
+                content: `📎 Attachment from ${formData.name}: ${file.name} (${formatFileSize(file.size)})`
+              };
+              
+              // Append the JSON payload as a string
+              formDataObj.append('payload_json', JSON.stringify(fileMessage));
+              
+              // Append the file with 'file' as the form field name
+              formDataObj.append('files[0]', file, file.name);
+              
+              // Send attachment to Discord
+              const fileResponse = await fetch(webhookUrl, {
+                method: 'POST',
+                body: formDataObj,
+              });
+              
+              if (!fileResponse.ok) {
+                console.error(`Error sending attachment ${file.name}:`, fileResponse.status, await fileResponse.text());
+              } else {
+                console.log(`Attachment ${file.name} sent successfully`);
+              }
+            }
+          }
         }
       } catch (error) {
         console.error('Discord webhook error:', error);
@@ -216,6 +245,11 @@ export default function ContactSection() {
       setSubmitSuccess(true);
       setFormData({ name: '', email: '', subject: '', message: '', budget: '' });
       setAttachments([]);
+      
+      // Redirect to projects page after a short delay
+      setTimeout(() => {
+        router.push('/projects');
+      }, 2000);
     } catch (error) {
       setSubmitError('There was an error submitting your form. Please try again.');
       console.error('Form submission error:', error);
@@ -224,23 +258,9 @@ export default function ContactSection() {
     }
   };
   
-  // Function to handle video popup
-  const toggleVideo = () => {
-    setShowVideo(!showVideo);
-    
-    // Play or pause video based on state
-    if (!showVideo) {
-      // Small delay to ensure DOM is updated
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.play();
-        }
-      }, 100);
-    } else {
-      if (videoRef.current) {
-        videoRef.current.pause();
-      }
-    }
+  // Function to handle video button click - now redirects to project page
+  const handleVideoClick = () => {
+    router.push('/projects/1');
   };
   
   const contactInfo = [
@@ -535,12 +555,7 @@ export default function ContactSection() {
                   </div>
                   <h4 className="text-xl font-medium mb-2">Message Sent Successfully!</h4>
                   <p className="mb-4">Thank you for reaching out! I'll review your project details and get back to you within 24-48 hours.</p>
-                  <button 
-                    onClick={() => setSubmitSuccess(false)}
-                    className="px-5 py-2 bg-green-800/30 hover:bg-green-800/50 border border-green-700/50 rounded-md text-sm transition-colors duration-300"
-                  >
-                    Send Another Message
-                  </button>
+                  <p className="text-sm text-green-300">Redirecting you to projects page in a moment...</p>
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
@@ -851,17 +866,17 @@ export default function ContactSection() {
                 </div>
               </div>
               
-              {/* Video card - added from projects section */}
+              {/* Video card - now redirects to featured project */}
               <div className="mt-8 pt-8 border-t border-white/10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/10 to-accent/5 flex items-center justify-center backdrop-blur-sm border border-primary/20 transition-all duration-300">
                     <FiPlay className="text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold">Watch My Work</h3>
+                  <h3 className="text-xl font-semibold">Featured Project</h3>
                 </div>
                 
                 <div 
-                  onClick={toggleVideo}
+                  onClick={handleVideoClick}
                   className="group bg-black/20 rounded-xl overflow-hidden border border-primary/10 hover:border-primary/30 transition-all duration-300 cursor-pointer relative"
                 >
                   {/* Video thumbnail with play overlay */}
@@ -887,8 +902,8 @@ export default function ContactSection() {
                     
                     {/* Title overlay */}
                     <div className="absolute bottom-4 left-4 z-10">
-                      <span className="text-white font-medium">Portfolio Showreel</span>
-                      <p className="text-white/70 text-sm">See my editing style</p>
+                      <span className="text-white font-medium">View Project</span>
+                      <p className="text-white/70 text-sm">Check out my latest work</p>
                     </div>
                   </div>
                 </div>
@@ -897,38 +912,6 @@ export default function ContactSection() {
           </div>
         </div>
       </div>
-      
-      {/* Video Modal */}
-      {showVideo && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md p-4"
-          onClick={toggleVideo}
-        >
-          <div 
-            className="relative w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <video 
-              ref={videoRef}
-              src="/projects/MAIN JOHAN.mp4"
-              className="w-full aspect-video"
-              controls
-              autoPlay
-            ></video>
-            
-            {/* Close button */}
-            <button 
-              onClick={toggleVideo}
-              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-primary/90 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
       
       {/* Film grain effect overlay */}
       <div className="absolute inset-0 pointer-events-none z-10 opacity-5 mix-blend-overlay">
