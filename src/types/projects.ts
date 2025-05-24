@@ -203,7 +203,19 @@ export const projects: Project[] = [
         youtubeUrl: 'https://youtu.be/kps38_gL0eo',
         client: 'none',
         services: ['Short Content', 'Quick Edits', 'Social Media']
-      } 
+      } ,
+      {
+        id: 14,
+        title: 'Luke Belmar Work',
+        description: 'A concise short-form video featuring Luke Belmar.',
+        duration: '1:30',
+        year: '2023',
+        tags: ['Short', 'Lifestyle'],
+        thumbnailUrl: '/images/luke.png',
+        youtubeUrl: 'https://youtube.com/shorts/fwzWfLC2b6c',
+        client: 'Luke Belmar',
+        services: ['Short Content', 'Quick Edits', 'Social Media']
+      }
     ];
 
 // Get a subset of featured projects for the home page
